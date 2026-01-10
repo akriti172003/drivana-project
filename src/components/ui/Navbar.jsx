@@ -1,20 +1,29 @@
 import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+
   return (
     <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/40 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-        {/* LOGO (ONLY ONE) */}
+        {/* LOGO */}
         <NavLink to="/" className="text-2xl font-extrabold neon-title">
           DRIVANA
         </NavLink>
 
         {/* NAV LINKS */}
-        <div className="flex gap-8 text-sm font-semibold">
+        <div className="flex gap-8 text-sm font-semibold items-center">
           <NavItem to="/">Home</NavItem>
           <NavItem to="/compare">Compare</NavItem>
           <NavItem to="/contact">Contact</NavItem>
+
+          {isAdmin && (
+            <NavItem to="/admin/dashboard">
+              <span className="text-yellow-400">Admin</span>
+            </NavItem>
+          )}
+
           <NavItem to="/login">Login</NavItem>
         </div>
       </div>

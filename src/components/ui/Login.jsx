@@ -22,14 +22,14 @@ export default function Login() {
     <div className="min-h-screen flex justify-center items-center">
       <form
         onSubmit={handleLogin}
-        className="glass p-8 w-96"
+        className="glass-card p-8 w-96 rounded-xl"
       >
-        <h2 className="text-2xl mb-4 text-center">Login</h2>
+        <h2 className="text-2xl mb-4 text-center neon-title">Login</h2>
 
         <input
           type="email"
           placeholder="Email"
-          className="w-full mb-3 p-2 rounded bg-black/40"
+          className="w-full mb-3 p-2 rounded bg-black/40 outline-none"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -37,12 +37,12 @@ export default function Login() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full mb-4 p-2 rounded bg-black/40"
+          className="w-full mb-4 p-2 rounded bg-black/40 outline-none"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="w-full bg-blue-600 py-2 rounded">
+        <button className="w-full bg-sky-400 hover:bg-sky-300 py-2 rounded text-black font-semibold">
           Login
         </button>
       </form>
