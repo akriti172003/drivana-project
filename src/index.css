@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================
+   🌌 GLOBAL BACKGROUND
+========================= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: radial-gradient(
+    circle at 20% 20%,
+    #0a0e24 0%,
+    #02040a 60%,
+    #000000 100%
+  );
+  color: white;
+  overflow-x: hidden;
+}
+
+/* =========================
+   ✨ PARTICLES CANVAS
+========================= */
+canvas {
+  opacity: 0.35;
+  filter: drop-shadow(0 0 8px #38bdf8);
+}
+
+/* =========================
+   🔮 NEON LOGO / TITLES
+========================= */
+.neon-title {
+  background: linear-gradient(90deg, #38bdf8, #a855f7, #f97316);
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  font-weight: 800;
+}
+
+/* =========================
+   💎 GLASS CARDS
+========================= */
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+}
+
+/* =========================
+   🫧 HOVER EFFECT
+========================= */
+.soft-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.soft-hover:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.35);
+}
+
+/* =========================
+   🌟 SELECTED CAR
+========================= */
+.selected-border {
+  border: 2px solid #38bdf8;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.7);
+}
+
+/* =========================
+   🧭 NAVBAR (GLASS + ANIM)
+========================= */
+.navbar-glass {
+  background: rgba(10, 14, 36, 0.55);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Nav link */
+.nav-link {
+  position: relative;
+  font-weight: 500;
+  color: #e5e7eb;
+  padding-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #38bdf8;
+}
+
+/* Underline animation */
+.nav-link .underline-anim {
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, #38bdf8, #a855f7);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover .underline-anim {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: #38bdf8;
+}
