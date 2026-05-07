@@ -1,158 +1,61 @@
-const mongoose = require("mongoose");
-require("dotenv").config();
+import mongoose from 'mongoose';
+import Car from './models/car.js'; 
+import { faker } from '@faker-js/faker';
+import dotenv from 'dotenv';
 
-const Car = require("./models/Car");
+dotenv.config();
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected for seeding"))
-  .catch((err) => console.error(err));
-
-const cars = [
-  {
-    name: "Creta",
-    brand: "Hyundai",
-    image: "creta.jpg",
-    price: "12 Lakh",
-    engine: "1497 cc",
-    power: "113 bhp",
-    torque: "143.8 Nm",
-    mileage: "17 kmpl",
-    fuel: "Petrol",
-    safety: "5 Star",
-    seats: 5
-  },
-  {
-    name: "Harrier",
-    brand: "Tata",
-    image: "harrier.jpg",
-    price: "15 Lakh",
-    engine: "1956 cc",
-    power: "167 bhp",
-    torque: "350 Nm",
-    mileage: "16 kmpl",
-    fuel: "Diesel",
-    safety: "5 Star",
-    seats: 5
-  },
-  {
-    name: "Nexon",
-    brand: "Tata",
-    image: "nexon.jpg",
-    price: "9 Lakh",
-    engine: "1497 cc",
-    power: "118 bhp",
-    torque: "260 Nm",
-    mileage: "17 kmpl",
-    fuel: "Petrol",
-    safety: "5 Star",
-    seats: 5
-  },
-  {
-    name: "City",
-    brand: "Honda",
-    image: "city.jpg",
-    price: "11 Lakh",
-    engine: "1498 cc",
-    power: "119 bhp",
-    torque: "145 Nm",
-    mileage: "18 kmpl",
-    fuel: "Petrol",
-    safety: "5 Star",
-    seats: 5
-  },
-  {
-    name: "Swift",
-    brand: "Maruti",
-    image: "swift.jpg",
-    price: "6 Lakh",
-    engine: "1197 cc",
-    power: "89 bhp",
-    torque: "113 Nm",
-    mileage: "22 kmpl",
-    fuel: "Petrol",
-    safety: "2 Star",
-    seats: 5
-  },
-  {
-    name: "Seltos",
-    brand: "Kia",
-    image: "seltos.jpg",
-    price: "11 Lakh",
-    engine: "1497 cc",
-    power: "113 bhp",
-    torque: "144 Nm",
-    mileage: "17 kmpl",
-    fuel: "Petrol",
-    safety: "3 Star",
-    seats: 5
-  },
-  {
-    name: "Fortuner",
-    brand: "Toyota",
-    image: "fortuner.jpg",
-    price: "33 Lakh",
-    engine: "2755 cc",
-    power: "201 bhp",
-    torque: "420 Nm",
-    mileage: "14 kmpl",
-    fuel: "Diesel",
-    safety: "5 Star",
-    seats: 7
-  },
-  {
-    name: "Thar",
-    brand: "Mahindra",
-    image: "thar.jpg",
-    price: "14 Lakh",
-    engine: "2184 cc",
-    power: "130 bhp",
-    torque: "300 Nm",
-    mileage: "15 kmpl",
-    fuel: "Diesel",
-    safety: "4 Star",
-    seats: 4
-  },
-  {
-    name: "Verna",
-    brand: "Hyundai",
-    image: "verna.jpg",
-    price: "10 Lakh",
-    engine: "1497 cc",
-    power: "113 bhp",
-    torque: "143 Nm",
-    mileage: "18 kmpl",
-    fuel: "Petrol",
-    safety: "5 Star",
-    seats: 5
-  },
-  {
-    name: "XUV700",
-    brand: "Mahindra",
-    image: "xuv700.jpg",
-    price: "17 Lakh",
-    engine: "1999 cc",
-    power: "197 bhp",
-    torque: "380 Nm",
-    mileage: "15 kmpl",
-    fuel: "Petrol",
-    safety: "5 Star",
-    seats: 7
-  }
+const carData = [
+  { brand: "Maruti Suzuki", models: ["Swift", "Baleno", "Brezza", "Grand Vitara"], type: "Middle Class" },
+  { brand: "Tata", models: ["Nexon", "Harrier", "Safari", "Punch"], type: "Middle Class" },
+  { brand: "Hyundai", models: ["Creta", "Verna", "i20", "Alcazar"], type: "Middle Class" },
+  { brand: "Toyota", models: ["Fortuner", "Innova Hycross", "Camry"], type: "Upper Class" },
+  { brand: "Mahindra", models: ["XUV700", "Scorpio-N", "Thar"], type: "Upper Class" },
+  { brand: "BMW", models: ["M4", "X5", "3 Series"], type: "Luxury" },
+  { brand: "Mercedes", models: ["G-Wagon", "S-Class", "GLC"], type: "Luxury" },
+  { brand: "Lamborghini", models: ["Urus", "Huracan"], type: "Supercar" }
 ];
 
-async function seed() {
+const seedDB = async () => {
   try {
-    await Car.deleteMany({});
-    console.log("Old cars removed.");
+    await mongoose.connect(process.env.MONGO_URI);
+    await Car.deleteMany({}); 
 
-    await Car.insertMany(cars);
-    console.log("Cars added successfully!");
+    const bulkCars = [];
 
+    for (let i = 0; i < 80; i++) {
+      const category = faker.helpers.arrayElement(carData);
+      const modelName = faker.helpers.arrayElement(category.models);
+      
+      // 🖼️ THE KEY FIX: 
+      // Using loremflickr with a 'lock' based on 'i'. 
+      // This forces the service to provide a unique car image for every loop.
+      const imageUrl = `https://loremflickr.com/800/600/car,automobile?lock=${i}`;
+
+      bulkCars.push({
+        name: `${category.brand} ${modelName}`,
+        brand: category.brand,
+        price: category.type === "Supercar" ? 38000000 : 1500000,
+        fuelType: faker.helpers.arrayElement(["Petrol", "Diesel", "EV"]),
+        transmission: "Automatic",
+        bhp: faker.number.int({ min: 100, max: 600 }),
+        torque: faker.number.int({ min: 150, max: 700 }),
+        safetyRating: "5 Star",
+        mileage: "18 kmpl",
+        seating: 5,
+        topSpeed: "210 km/h",
+        image: imageUrl,
+        description: `Premium ${category.brand} ${modelName}.`
+      });
+    }
+
+    await Car.insertMany(bulkCars);
+    console.log("🚀 SUCCESS: Unique car images generated!");
     process.exit();
   } catch (err) {
     console.error(err);
-    process.exit();
+    process.exit(1);
   }
-}
+};
 
-seed();
+seedDB();

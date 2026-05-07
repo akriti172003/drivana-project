@@ -1,123 +1,134 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-/* ✅ IMPORT ONLY IMAGES YOU ACTUALLY HAVE */
-import HyundaiCreta from "../../assets/hyundai_creta.jpg";
-import KiaSeltos from "../../assets/kia_seltos.jpg";
-import TataHarrier from "../../assets/tata_harrier.jpg";
-import MahindraXUV700 from "../../assets/mahindra_xuv700.jpg";
-import ToyotaFortuner from "../../assets/toyota_fortuner.jpg";
-import TataNexon from "../../assets/tata_nexon.jpg";
-import Swift from "../../assets/swift.jpg";
-import Verna from "../../assets/verna.jpg";
-import City from "../../assets/city.jpg";
-import Thar from "../../assets/thar.jpg";
-
-/* ✅ SINGLE SOURCE OF TRUTH — 10 CARS */
-const cars = [
-  { id: 1, name: "Hyundai Creta", price: "₹11.00 Lakh", img: HyundaiCreta },
-  { id: 2, name: "Kia Seltos", price: "₹10.90 Lakh", img: KiaSeltos },
-  { id: 3, name: "Tata Harrier", price: "₹15.50 Lakh", img: TataHarrier },
-  { id: 4, name: "Mahindra XUV700", price: "₹14.00 Lakh", img: MahindraXUV700 },
-  { id: 5, name: "Toyota Fortuner", price: "₹32.00 Lakh", img: ToyotaFortuner },
-  { id: 6, name: "Tata Nexon", price: "₹8.10 Lakh", img: TataNexon },
-  { id: 7, name: "Maruti Swift", price: "₹6.00 Lakh", img: Swift },
-  { id: 8, name: "Hyundai Verna", price: "₹10.90 Lakh", img: Verna },
-  { id: 9, name: "Honda City", price: "₹11.60 Lakh", img: City },
-  { id: 10, name: "Mahindra Thar", price: "₹11.35 Lakh", img: Thar },
-];
+import API from "../../api/api";
 
 export default function CarGrid() {
   const navigate = useNavigate();
+  const [cars, setCars] = useState([]);
   const [selected, setSelected] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 Added for search functionality
 
-  /* ✅ SELECT / UNSELECT CAR (BUG-FREE) */
-  const toggleSelect = (car) => {
-    setSelected((prev) => {
-      const alreadySelected = prev.some((c) => c.id === car.id);
+  /* 🔄 FETCH FROM BACKEND */
+  useEffect(() => {
+    fetchCars();
+  }, []);
 
-      if (alreadySelected) {
-        return prev.filter((c) => c.id !== car.id);
-      }
-
-      if (prev.length >= 10) {
-        alert("You can compare maximum 10 cars");
-        return prev;
-      }
-
-      return [...prev, car];
-    });
+  const fetchCars = async () => {
+    try {
+      const res = await API.get("/cars");
+      setCars(res.data);
+    } catch (err) {
+      console.error("Failed to load cars", err);
+    }
   };
 
-  /* ✅ COMPARE FLOW (LOGIN PROTECTED) */
+  /* ✅ SEARCH FILTER LOGIC */
+  const filteredCars = cars.filter((car) =>
+    car.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    car.brand.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  /* ✅ SELECT / UNSELECT */
+  const toggleSelect = (car) => {
+    setSelected((prev) =>
+      prev.some((c) => c._id === car._id)
+        ? prev.filter((c) => c._id !== car._id)
+        : [...prev, car]
+    );
+  };
+
+  /* ✅ COMPARE FLOW */
   const handleCompare = () => {
     if (selected.length < 2) {
-      alert("Select at least 2 cars to compare");
+      alert("Select at least 2 cars");
       return;
     }
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      localStorage.setItem("pendingCompare", JSON.stringify(selected));
-      navigate("/login");
-      return;
-    }
-
     localStorage.setItem("compareCars", JSON.stringify(selected));
     navigate("/compare");
   };
 
   return (
     <section id="cars" className="min-h-screen px-8 pb-24">
-      {/* TITLE */}
       <h2 className="text-4xl neon-title text-center my-14">
-        Select Cars to Compare
+        Explore 200+ Premium Cars
       </h2>
 
-      {/* GRID */}
+      {/* 🔍 SEARCH BAR UI */}
+      <div className="max-w-xl mx-auto mb-12">
+        <input
+          type="text"
+          placeholder="Search by brand or model (e.g. Tesla, BMW)..."
+          className="w-full px-6 py-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-white focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all outline-none"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <p className="text-gray-500 text-center mt-3 text-sm">
+          Showing {filteredCars.length} cars
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-        {cars.map((car) => {
-          const isSelected = selected.some((c) => c.id === car.id);
+        {filteredCars.map((car) => {
+          const isSelected = selected.some((c) => c._id === car._id);
+
+          // 🖼️ IMAGE LOGIC: Check if image is a full URL or a local path
+          const imageSrc = car.image?.startsWith("http")
+            ? car.image
+            : `http://localhost:5000/uploads/${car.image}`;
 
           return (
             <div
-              key={car.id}
+              key={car._id}
               onClick={() => toggleSelect(car)}
               className={`glass-card soft-hover cursor-pointer p-4 rounded-xl transition
-                ${isSelected ? "selected-border" : ""}
+                ${isSelected ? "ring-2 ring-sky-400 bg-sky-400/10 shadow-[0_0_20px_rgba(56,189,248,0.3)]" : "border border-white/5"}
               `}
             >
               <img
-                src={car.img}
+                src={imageSrc}
                 alt={car.name}
                 className="h-48 w-full object-cover rounded-lg"
-                loading="lazy"
+                loading="lazy" // Improves performance for 200 items
+                onError={(e) => {
+                  e.target.onerror = null; 
+                  e.target.src = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=400&h=300";
+                }}
               />
 
               <div className="mt-4 text-center">
-                <h3 className="text-lg font-semibold">{car.name}</h3>
-                <p className="text-sm text-gray-300">{car.price}</p>
+                <h3 className="text-lg font-semibold text-white">{car.name}</h3>
+                <p className="text-sm text-sky-400 font-bold">
+                  {/* Formats price for presentation (INR) */}
+                  ₹{car.price?.toLocaleString()}
+                </p>
+                <div className="flex justify-center gap-2 mt-2">
+                   <span className="text-[10px] px-2 py-1 bg-slate-800 rounded text-gray-400 uppercase">
+                      {car.fuelType}
+                   </span>
+                   <span className="text-[10px] px-2 py-1 bg-slate-800 rounded text-gray-400 uppercase">
+                      {car.bhp} BHP
+                   </span>
+                </div>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* COMPARE BUTTON */}
-      <div className="flex justify-center mt-16">
+      {/* 🚀 STICKY ACTION BAR */}
+      <div className="fixed bottom-10 left-0 right-0 flex justify-center z-50 pointer-events-none">
         <button
           onClick={handleCompare}
           disabled={selected.length < 2}
-          className={`px-12 py-4 rounded-xl font-bold shadow-xl transition
+          className={`px-12 py-4 rounded-full font-bold shadow-2xl transition pointer-events-auto
             ${
               selected.length < 2
-                ? "bg-gray-600 cursor-not-allowed"
-                : "bg-sky-400 hover:bg-sky-300 text-black"
+                ? "bg-gray-800 scale-90 opacity-0 text-gray-500 translate-y-20"
+                : "bg-sky-400 hover:bg-sky-300 text-black translate-y-0 opacity-100"
             }
           `}
         >
-          Compare Selected Cars ({selected.length})
+          Compare {selected.length} Selected Cars
         </button>
       </div>
     </section>

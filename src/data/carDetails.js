@@ -1,5 +1,8 @@
+// src/data/carDetails.js
+
 export const carDetails = {
   "Hyundai Creta": {
+    price: "₹11.00 Lakh",
     engine: "1.5L Petrol / Diesel",
     mileage: "17 kmpl",
     fuel: "Petrol / Diesel",
@@ -10,7 +13,9 @@ export const carDetails = {
     airbags: "6",
     drive: "FWD",
   },
+
   "Kia Seltos": {
+    price: "₹10.90 Lakh",
     engine: "1.5L Petrol",
     mileage: "16.8 kmpl",
     fuel: "Petrol",
@@ -21,7 +26,9 @@ export const carDetails = {
     airbags: "6",
     drive: "FWD",
   },
+
   "Tata Harrier": {
+    price: "₹15.50 Lakh",
     engine: "2.0L Diesel",
     mileage: "16.8 kmpl",
     fuel: "Diesel",
@@ -32,7 +39,9 @@ export const carDetails = {
     airbags: "6",
     drive: "FWD",
   },
+
   "Mahindra XUV700": {
+    price: "₹14.00 Lakh",
     engine: "2.0L Petrol / Diesel",
     mileage: "15 kmpl",
     fuel: "Petrol / Diesel",
@@ -43,7 +52,9 @@ export const carDetails = {
     airbags: "7",
     drive: "AWD",
   },
+
   "Toyota Fortuner": {
+    price: "₹32.00 Lakh",
     engine: "2.8L Diesel",
     mileage: "14 kmpl",
     fuel: "Diesel",
@@ -54,7 +65,9 @@ export const carDetails = {
     airbags: "7",
     drive: "4WD",
   },
+
   "Tata Nexon": {
+    price: "₹8.10 Lakh",
     engine: "1.2L Petrol",
     mileage: "17 kmpl",
     fuel: "Petrol",
@@ -65,7 +78,9 @@ export const carDetails = {
     airbags: "6",
     drive: "FWD",
   },
+
   "Maruti Swift": {
+    price: "₹6.00 Lakh",
     engine: "1.2L Petrol",
     mileage: "22 kmpl",
     fuel: "Petrol",
@@ -76,7 +91,9 @@ export const carDetails = {
     airbags: "2",
     drive: "FWD",
   },
+
   "Hyundai Verna": {
+    price: "₹10.90 Lakh",
     engine: "1.5L Petrol",
     mileage: "20 kmpl",
     fuel: "Petrol",
@@ -87,7 +104,9 @@ export const carDetails = {
     airbags: "6",
     drive: "FWD",
   },
+
   "Honda City": {
+    price: "₹11.60 Lakh",
     engine: "1.5L Petrol",
     mileage: "18 kmpl",
     fuel: "Petrol",
@@ -98,7 +117,9 @@ export const carDetails = {
     airbags: "6",
     drive: "FWD",
   },
+
   "Mahindra Thar": {
+    price: "₹11.35 Lakh",
     engine: "2.0L Petrol / Diesel",
     mileage: "15 kmpl",
     fuel: "Petrol / Diesel",

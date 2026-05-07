@@ -1,70 +1,69 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { User, Lock, ArrowLeft, Loader2, LogIn } from "lucide-react"; // Modern Icons
+import { User, Mail, Lock, ArrowLeft, Loader2, UserPlus } from "lucide-react";
 import API from "../../api/api";
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function Signup() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      // 1. Authenticate with your MERN backend
-      const res = await API.post("/auth/login", { email, password });
+      // 1. Hit the register endpoint (standard user signup)
+      const res = await API.post("/auth/register", formData);
 
-      // 2. Destructure the dynamic role and token from backend
+      // 2. Auto-login after successful signup
       const { token, isAdmin, name } = res.data;
-
-      // 3. Store session data
       localStorage.setItem("token", token);
-      localStorage.setItem("isAdmin", isAdmin); // Dynamic: true or false
+      localStorage.setItem("isAdmin", isAdmin); 
       localStorage.setItem("userName", name);
 
-      // 4. Smooth Redirect Logic
-      if (isAdmin) {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
-
-      // 5. Global state refresh
+      // 3. Smooth redirect to home
+      navigate("/");
       window.location.reload();
-      
+
     } catch (err) {
-      console.error("Login Error:", err);
-      setError(err.response?.data?.message || "Invalid credentials. Please try again.");
+      console.error("Signup Error:", err);
+      setError(err.response?.data?.message || "Registration failed. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-slate-950 text-white relative overflow-hidden">
+    <div className="min-h-screen flex justify-center items-center bg-slate-950 text-white relative overflow-hidden px-4">
       {/* Background Decorative Blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-sky-500/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]" />
+      <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-sky-500/10 rounded-full blur-[120px]" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]" />
 
       <form
-        onSubmit={handleLogin}
-        className="relative z-10 bg-slate-900/40 backdrop-blur-xl p-10 w-[420px] rounded-[2rem] border border-slate-800 shadow-2xl transition-all duration-500 hover:border-slate-700"
+        onSubmit={handleSignup}
+        className="relative z-10 bg-slate-900/40 backdrop-blur-xl p-8 md:p-10 w-full max-w-[440px] rounded-[2.5rem] border border-slate-800 shadow-2xl transition-all duration-500 hover:border-slate-700"
       >
         {/* Header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <div className="bg-sky-500/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-sky-500/20">
-            <LogIn className="text-sky-400" size={30} />
+            <UserPlus className="text-sky-400" size={30} />
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight">
-            Drivana <span className="text-sky-400">Portal</span>
+            Join <span className="text-sky-400">Drivana</span>
           </h2>
-          <p className="text-slate-500 text-sm mt-2">Access your personalized dashboard</p>
+          <p className="text-slate-500 text-sm mt-2">Start your premium car journey today</p>
         </div>
 
         {/* Error Feedback */}
@@ -76,36 +75,50 @@ export default function Login() {
         )}
 
         {/* Inputs */}
-        <div className="space-y-6">
+        <div className="space-y-5">
           <div className="group">
-            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">
-              Email Address
-            </label>
+            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">Full Name</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-400 transition-colors" size={18} />
               <input
-                type="email"
-                placeholder="name@example.com"
+                type="text"
+                name="name"
+                placeholder="John Doe"
                 className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-black/40 border border-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all text-sm"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.name}
+                onChange={handleChange}
                 required
               />
             </div>
           </div>
 
           <div className="group">
-            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">
-              Password
-            </label>
+            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-400 transition-colors" size={18} />
+              <input
+                type="email"
+                name="email"
+                placeholder="driver@example.com"
+                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-black/40 border border-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all text-sm"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="group">
+            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">Password</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-400 transition-colors" size={18} />
               <input
                 type="password"
+                name="password"
                 placeholder="••••••••"
                 className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-black/40 border border-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all text-sm"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
                 required
               />
             </div>
@@ -118,20 +131,20 @@ export default function Login() {
             {loading ? (
               <span className="flex items-center justify-center gap-3">
                 <Loader2 className="animate-spin" size={20} />
-                Verifying...
+                Creating Account...
               </span>
             ) : (
-              "Sign In"
+              "Create Account"
             )}
           </button>
         </div>
 
-        {/* Footer Links */}
-        <div className="mt-10 flex flex-col items-center gap-4 border-t border-slate-800/50 pt-8">
+        {/* Footer */}
+        <div className="mt-8 flex flex-col items-center gap-4 border-t border-slate-800/50 pt-6">
           <p className="text-xs text-slate-500">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-sky-400 font-bold hover:text-sky-300 transition-colors">
-              Create one
+            Already have an account?{" "}
+            <Link to="/login" className="text-sky-400 font-bold hover:text-sky-300 transition-colors">
+              Log In
             </Link>
           </p>
           <button

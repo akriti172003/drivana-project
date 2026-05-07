@@ -1,18 +1,54 @@
+import { useState } from "react";
+import API from "../../../api/api";
+
 export default function AdminAddCar() {
+  const [formData, setFormData] = useState({});
+  const [image, setImage] = useState(null);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const data = new FormData();
+    Object.keys(formData).forEach((key) =>
+      data.append(key, formData[key])
+    );
+    data.append("image", image);
+
+    await API.post("/cars", data, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    alert("Car added successfully");
+  };
+
   return (
-    <>
-      <h1 className="text-3xl neon-title mb-6">Add New Car</h1>
+    <form onSubmit={handleSubmit} className="grid gap-4 max-w-xl">
+      <input name="name" onChange={handleChange} placeholder="Name" />
+      <input name="price" onChange={handleChange} placeholder="Price" />
+      <input name="engine" onChange={handleChange} placeholder="Engine" />
+      <input name="mileage" onChange={handleChange} placeholder="Mileage" />
+      <input name="fuel" onChange={handleChange} placeholder="Fuel" />
+      <input name="transmission" onChange={handleChange} placeholder="Transmission" />
+      <input name="seating" onChange={handleChange} placeholder="Seating" />
+      <input name="safety" onChange={handleChange} placeholder="Safety" />
+      <input name="boot" onChange={handleChange} placeholder="Boot" />
+      <input name="airbags" onChange={handleChange} placeholder="Airbags" />
+      <input name="drive" onChange={handleChange} placeholder="Drive" />
 
-      <form className="glass-card p-6 max-w-xl space-y-4">
-        <input className="w-full p-3 rounded bg-black border" placeholder="Car Name" />
-        <input className="w-full p-3 rounded bg-black border" placeholder="Price" />
-        <input className="w-full p-3 rounded bg-black border" placeholder="Engine" />
-        <input className="w-full p-3 rounded bg-black border" placeholder="Mileage" />
+      {/* IMAGE UPLOAD */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setImage(e.target.files[0])}
+      />
 
-        <button className="w-full py-3 bg-sky-400 text-black font-bold rounded">
-          Save Car
-        </button>
-      </form>
-    </>
+      <button className="bg-sky-400 py-3 font-bold">Add Car</button>
+    </form>
   );
 }
