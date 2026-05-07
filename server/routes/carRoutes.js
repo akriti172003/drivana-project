@@ -1,7 +1,7 @@
 import express from "express";
 import fs from "fs";
 import path from "path";
-import Car from "../models/car.js";
+import Car from "../models/Car.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
 
