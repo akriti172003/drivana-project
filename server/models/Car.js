@@ -18,14 +18,13 @@ const carSchema = new mongoose.Schema(
       trim: true,
     },
     price: {
-      type: Number, // Changed to Number for better sorting/formatting
+      type: Number, // Keeps sorting/filtering fast and accurate
       required: [true, "Price is required"],
     },
     image: {
       type: String,
       default: "default-car.jpg",
     },
-    // ✅ ADDED/UPDATED TO MATCH YOUR COMPARE PAGE
     bhp: {
       type: String,
       default: "120", // Default power for seeded cars
@@ -38,7 +37,7 @@ const carSchema = new mongoose.Schema(
       type: String,
       default: "18 kmpl",
     },
-    fuelType: {
+    fuel: { // 🔄 Updated key name to match your seed dataset ("fuel" instead of "fuelType")
       type: String,
       enum: ["Petrol", "Diesel", "Electric", "EV", "Hybrid", "CNG"],
       default: "Petrol",
@@ -48,14 +47,13 @@ const carSchema = new mongoose.Schema(
       enum: ["Manual", "Automatic", "CVT", "DCT", "AMT"],
       default: "Manual",
     },
-    safetyRating: {
+    safety: { // 🔄 Updated key name to match your seed dataset ("safety" instead of "safetyRating")
       type: String,
-      default: "5", // Matches the safetyRating key in your UI
+      default: "5 Star", 
     },
-    // --- Keep the others for deeper spec analysis ---
     seating: {
       type: String,
-      default: "5",
+      default: "5 Seated",
     },
     boot: {
       type: String,
