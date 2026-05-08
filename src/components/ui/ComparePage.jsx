@@ -5,8 +5,8 @@ import {
   ChevronRight, Users, Sparkles, Box, Wind, 
   Settings, Timer, Lock 
 } from "lucide-react";
-// 🔄 Modified from "./Navbar" to "../Navbar" to step out of the 'ui' directory
-import Navbar from "../Navbar";
+// 🔄 SAME FOLDER SYNC: Changed from "../Navbar" to "./Navbar"
+import Navbar from "./Navbar";
 
 export default function ComparePage() {
   const [cars, setCars] = useState([]);
