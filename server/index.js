@@ -18,11 +18,29 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 /* =========================
-    🌐 MIDDLEWARE
+    🌐 CORS CONFIGURATION (Updated for Vercel & Local)
 ========================= */
+const allowedOrigins = [
+  "https://drivana-project.vercel.app",
+  "https://drivana-project-git-main-akriti172003s-projects.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:5174"
+];
+
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5174"],
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, Postman or server-to-server)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Blocked by Drivana CORS Security"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());
