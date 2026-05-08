@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API, { getCars } from "../api/api"; // 🔄 Imported getCars endpoint wrapper
+import API, { getCars } from "../../api/api"; // 🔄 Imported getCars endpoint wrapper
 
 export default function CarGrid() {
   const navigate = useNavigate();
