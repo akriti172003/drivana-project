@@ -1,11 +1,10 @@
 import axios from "axios";
 
-// 🌍 Dynamic Base URL: Pehle Vercel/Render ke environment variable ko check karega, 
-// agar nahi mila toh local localhost:5000 par fall back karega.
+// 🌍 Dynamic Base URL: Pehle env check karega, fallback to live Render server in production
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL 
     ? `${import.meta.env.VITE_API_URL}/api` 
-    : "http://localhost:5000/api",
+    : "https://drivana-project-1.onrender.com/api",
 });
 
 // 🛡️ AUTH INTERCEPTOR
@@ -46,7 +45,7 @@ export const deleteCar = (id) => API.delete(`/cars/${id}`);
    🤖 AI & CHAT ENDPOINTS
    ============================================= */
 
-// UPDATED: Path matches app.post("/api/ai/chat") in your index.js
+// Path matches app.post("/api/ai/chat") in backend index.js
 export const sendChatMessage = (chatPayload) => API.post("/ai/chat", chatPayload);
 
 // Get AI-powered comparison analysis
@@ -56,7 +55,7 @@ export const getAIComparison = (carIds) => API.post("/cars/compare-ai", { carIds
    👤 AUTH ENDPOINTS
    ============================================= */
 
-// login and register functions for use in your Login.jsx and Signup.jsx
+// Login and Register wrappers
 export const loginUser = (formData) => API.post("/auth/login", formData);
 export const registerUser = (formData) => API.post("/auth/register", formData);
 

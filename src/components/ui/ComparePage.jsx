@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Added navigate and location hooks
+import { useNavigate, useLocation } from "react-router-dom";
 import { 
   Trash2, Shield, Gauge, Fuel, Zap, Activity, 
   ChevronRight, Users, Sparkles, Box, Wind, 
@@ -84,7 +84,7 @@ export default function ComparePage() {
           </div>
           <button 
             onClick={() => { 
-              localStorage.removeItem("compareCars"); // Clears only compare workspace rather than full session storage
+              localStorage.removeItem("compareCars"); // Clears workspace
               window.location.reload(); 
             }} 
             className="px-12 py-6 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all"
@@ -99,11 +99,25 @@ export default function ComparePage() {
             const isValue = parseFloat(car.price) === limits.price.min;
             const isEfficient = parseFloat(car.mileage) === limits.mileage.max;
 
+            // 🖼️ DYNAMIC IMAGE BASE URL SYNC
+            const imageBaseURL = "https://drivana-project-1.onrender.com";
+            const imageSrc = car.image?.startsWith("http")
+              ? car.image
+              : `${imageBaseURL}/uploads/${car.image}`;
+
             return (
               <div key={car._id || i} className="bg-[#080c14] border border-white/5 rounded-[4rem] overflow-hidden group hover:border-blue-500/40 transition-all duration-700">
                 {/* Image Section */}
                 <div className="h-80 relative overflow-hidden bg-black">
-                  <img src={car.image} className="w-full h-full object-cover opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000" alt="Car" />
+                  <img 
+                    src={imageSrc} 
+                    className="w-full h-full object-cover opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000" 
+                    alt={car.name} 
+                    onError={(e) => {
+                      e.target.onerror = null; 
+                      e.target.src = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=400&h=300";
+                    }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#080c14] via-transparent" />
                   
                   <div className="absolute top-10 left-10 flex flex-col gap-2">
@@ -120,22 +134,23 @@ export default function ComparePage() {
 
                 {/* Expanded Comparison Features */}
                 <div className="p-12 space-y-1">
-                  <SpecRow icon={<Fuel size={14}/>} label="Fuel Type" value={car.fuelType || car.fuel} />
-                  <SpecRow icon={<Settings size={14}/>} label="Engine" value={`${car.engine} cc`} />
-                  <SpecRow icon={<Gauge size={14}/>} label="BHP" value={car.bhp} highlight={isPower} percent={(car.bhp/800)*100} />
-                  <SpecRow icon={<Activity size={14}/>} label="Torque" value={`${car.torque} Nm`} />
-                  <SpecRow icon={<Timer size={14}/>} label="Top Speed" value={`${car.topSpeed || '210'} km/h`} highlight={parseFloat(car.topSpeed) === limits.topSpeed.max} />
-                  <SpecRow icon={<Wind size={14}/>} label="Mileage" value={`${car.mileage} kmpl`} highlight={isEfficient} />
+                  <SpecRow icon={<Fuel size={14}/>} label="Fuel Type" value={car.fuel || car.fuelType} />
+                  <SpecRow icon={<Settings size={14}/>} label="Engine" value={car.engine?.includes("cc") ? car.engine : `${car.engine || "1197"} cc`} />
+                  <SpecRow icon={<Gauge size={14}/>} label="BHP" value={car.bhp ? `${car.bhp} BHP` : "—"} highlight={isPower} percent={(parseFloat(car.bhp)/400)*100} />
+                  <SpecRow icon={<Activity size={14}/>} label="Torque" value={car.torque?.includes("Nm") ? car.torque : `${car.torque || "150"} Nm`} />
+                  <SpecRow icon={<Timer size={14}/>} label="Top Speed" value={car.topSpeed ? `${car.topSpeed} km/h` : "210 km/h"} highlight={parseFloat(car.topSpeed) === limits.topSpeed.max} />
+                  <SpecRow icon={<Wind size={14}/>} label="Mileage" value={car.mileage} highlight={isEfficient} />
                   <SpecRow icon={<Box size={14}/>} label="Gearbox" value={car.transmission} />
-                  <SpecRow icon={<Users size={14}/>} label="Capacity" value={`${car.seats} Seater`} />
-                  <SpecRow icon={<Shield size={14}/>} label="Safety" value={`${car.safetyRating} / 5`} highlight />
+                  <SpecRow icon={<Users size={14}/>} label="Capacity" value={car.seating || car.seats || "5 Seated"} />
+                  <SpecRow icon={<Shield size={14}/>} label="Safety" value={car.safety || car.safetyRating || "5 Star"} highlight />
                   
                   {/* Price Section */}
                   <div className="pt-12 mt-6 border-t border-white/5">
                     <div className="bg-white/[0.02] p-8 rounded-[2.5rem] border border-white/5 flex flex-col gap-1 hover:bg-blue-500/5 transition-colors">
                       <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Ex-Showroom Estimate</span>
                       <p className="text-3xl font-black text-white">
-                        {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(car.price)}
+                        {/* 💎 100% Solid Lakh Pricing Formatting */}
+                        {car.price ? `₹${car.price} Lakh` : "Price on Request"}
                       </p>
                     </div>
                   </div>
@@ -149,7 +164,7 @@ export default function ComparePage() {
   );
 }
 
-// Sub-components stay essentially the same but with minor layout polish
+// Sub-components with minor layout polish
 function SpecRow({ icon, label, value, highlight, percent }) {
   return (
     <div className="py-3 border-b border-white/[0.02] hover:bg-white/[0.01] transition-colors rounded-lg px-2">

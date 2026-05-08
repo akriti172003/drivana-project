@@ -1,24 +1,25 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../../api/api";
+import API, { getCars } from "../api/api"; // 🔄 Imported getCars endpoint wrapper
 
 export default function CarGrid() {
   const navigate = useNavigate();
   const [cars, setCars] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // 🔍 Added for search functionality
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 Search functionality
 
   /* 🔄 FETCH FROM BACKEND */
   useEffect(() => {
-    fetchCars();
+    fetchCarsList();
   }, []);
 
-  const fetchCars = async () => {
+  const fetchCarsList = async () => {
     try {
-      const res = await API.get("/cars");
+      // Calling wrapped getCars() from api.js
+      const res = await getCars();
       setCars(res.data);
     } catch (err) {
-      console.error("Failed to load cars", err);
+      console.error("Failed to load cars from Render DB", err);
     }
   };
 
@@ -71,10 +72,16 @@ export default function CarGrid() {
         {filteredCars.map((car) => {
           const isSelected = selected.some((c) => c._id === car._id);
 
-          // 🖼️ IMAGE LOGIC: Check if image is a full URL or a local path
+          // 🖼️ DYNAMIC IMAGE PATH (Uses deployed server URL as fallback base)
+          const imageBaseURL = "https://drivana-project-1.onrender.com";
           const imageSrc = car.image?.startsWith("http")
             ? car.image
-            : `http://localhost:5000/uploads/${car.image}`;
+            : `${imageBaseURL}/uploads/${car.image}`;
+
+          // 💰 SOLID LAKH SUFFIX PRESENTATION FORMATTING
+          const displayPrice = car.price 
+            ? `₹${Number(car.price).toLocaleString("en-IN")} Lakh` 
+            : "Price on Request";
 
           return (
             <div
@@ -88,7 +95,7 @@ export default function CarGrid() {
                 src={imageSrc}
                 alt={car.name}
                 className="h-48 w-full object-cover rounded-lg"
-                loading="lazy" // Improves performance for 200 items
+                loading="lazy"
                 onError={(e) => {
                   e.target.onerror = null; 
                   e.target.src = "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=400&h=300";
@@ -97,16 +104,19 @@ export default function CarGrid() {
 
               <div className="mt-4 text-center">
                 <h3 className="text-lg font-semibold text-white">{car.name}</h3>
+                
+                {/* 💎 Perfected dynamic Lakh formatting layout */}
                 <p className="text-sm text-sky-400 font-bold">
-                  {/* Formats price for presentation (INR) */}
-                  ₹{car.price?.toLocaleString()}
+                  {displayPrice}
                 </p>
+
                 <div className="flex justify-center gap-2 mt-2">
                    <span className="text-[10px] px-2 py-1 bg-slate-800 rounded text-gray-400 uppercase">
-                      {car.fuelType}
+                      {/* 🔄 Synced with database attribute structure */}
+                      {car.fuel || car.fuelType || "Petrol"}
                    </span>
                    <span className="text-[10px] px-2 py-1 bg-slate-800 rounded text-gray-400 uppercase">
-                      {car.bhp} BHP
+                      {car.bhp || "120"} BHP
                    </span>
                 </div>
               </div>
