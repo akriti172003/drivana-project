@@ -1,7 +1,11 @@
 import axios from "axios";
 
+// 🌍 Dynamic Base URL: Pehle Vercel/Render ke environment variable ko check karega, 
+// agar nahi mila toh local localhost:5000 par fall back karega.
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL}/api` 
+    : "http://localhost:5000/api",
 });
 
 // 🛡️ AUTH INTERCEPTOR
@@ -14,7 +18,7 @@ API.interceptors.request.use((req) => {
 });
 
 /* =============================================
-    🚗 CAR ENDPOINTS
+   🚗 CAR ENDPOINTS
    ============================================= */
 
 // Fetch all cars
@@ -39,7 +43,7 @@ export const updateCar = (id, carData) =>
 export const deleteCar = (id) => API.delete(`/cars/${id}`);
 
 /* =============================================
-    🤖 AI & CHAT ENDPOINTS
+   🤖 AI & CHAT ENDPOINTS
    ============================================= */
 
 // UPDATED: Path matches app.post("/api/ai/chat") in your index.js
@@ -49,7 +53,7 @@ export const sendChatMessage = (chatPayload) => API.post("/ai/chat", chatPayload
 export const getAIComparison = (carIds) => API.post("/cars/compare-ai", { carIds });
 
 /* =============================================
-    👤 AUTH ENDPOINTS
+   👤 AUTH ENDPOINTS
    ============================================= */
 
 // login and register functions for use in your Login.jsx and Signup.jsx

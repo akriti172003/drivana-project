@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { User, Mail, Lock, ArrowLeft, Loader2, UserPlus } from "lucide-react";
+import { User, Mail, Lock, ArrowLeft, Loader2, UserPlus, Eye, EyeOff } from "lucide-react"; // Added Eye & EyeOff icons
 import API from "../../api/api";
 
 export default function Signup() {
@@ -9,6 +9,7 @@ export default function Signup() {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility toggle
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -39,7 +40,10 @@ export default function Signup() {
 
     } catch (err) {
       console.error("Signup Error:", err);
-      setError(err.response?.data?.message || "Registration failed. Try again.");
+      setError(
+        err.response?.data?.message || 
+        "Registration failed. Please check your details and try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -58,7 +62,7 @@ export default function Signup() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="bg-sky-500/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-sky-500/20">
-            <UserPlus className="text-sky-400" size={30} />
+            <UserPlus className="text-sky-400 animate-pulse" size={30} />
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight">
             Join <span className="text-sky-400">Drivana</span>
@@ -68,23 +72,29 @@ export default function Signup() {
 
         {/* Error Feedback */}
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl flex items-center gap-3">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-            {error}
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl flex items-center gap-3 animate-bounce">
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+            <span className="flex-1">{error}</span>
           </div>
         )}
 
         {/* Inputs */}
         <div className="space-y-5">
+          {/* Full Name */}
           <div className="group">
-            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">Full Name</label>
+            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">
+              Full Name
+            </label>
             <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-400 transition-colors" size={18} />
+              <User 
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-400 transition-colors" 
+                size={18} 
+              />
               <input
                 type="text"
                 name="name"
                 placeholder="John Doe"
-                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-black/40 border border-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all text-sm"
+                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-black/40 border border-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all text-sm text-white"
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -92,15 +102,21 @@ export default function Signup() {
             </div>
           </div>
 
+          {/* Email Address */}
           <div className="group">
-            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">Email Address</label>
+            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">
+              Email Address
+            </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-400 transition-colors" size={18} />
+              <Mail 
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-400 transition-colors" 
+                size={18} 
+              />
               <input
                 type="email"
                 name="email"
                 placeholder="driver@example.com"
-                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-black/40 border border-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all text-sm"
+                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-black/40 border border-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all text-sm text-white"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -108,25 +124,40 @@ export default function Signup() {
             </div>
           </div>
 
+          {/* Password with eye toggle */}
           <div className="group">
-            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">Password</label>
+            <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold ml-1 mb-2 block">
+              Password
+            </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-400 transition-colors" size={18} />
+              <Lock 
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-400 transition-colors" 
+                size={18} 
+              />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="••••••••"
-                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-black/40 border border-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all text-sm"
+                className="w-full pl-12 pr-12 py-3.5 rounded-xl bg-black/40 border border-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all text-sm text-white"
                 value={formData.password}
                 onChange={handleChange}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
+          {/* Submit Button */}
           <button
+            type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transition-all text-white font-bold py-4 rounded-2xl mt-4 shadow-xl shadow-sky-500/20 active:scale-[0.98]"
+            className="w-full bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transition-all text-white font-bold py-4 rounded-2xl mt-4 shadow-xl shadow-sky-500/20 active:scale-[0.98] flex items-center justify-center"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-3">

@@ -1,15 +1,27 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom"; // Added navigate and location hooks
 import { 
   Trash2, Shield, Gauge, Fuel, Zap, Activity, 
   ChevronRight, Users, Sparkles, Box, Wind, 
-  Settings, Timer 
+  Settings, Timer, Lock 
 } from "lucide-react";
 import Navbar from "./Navbar";
 
 export default function ComparePage() {
   const [cars, setCars] = useState([]);
+  const [isAuthorized, setIsAuthorized] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    // 🔑 Auth Guard: Check if user is logged in
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsAuthorized(false);
+      return;
+    }
+
+    // Load cars if authorized
     const stored = localStorage.getItem("compareCars");
     if (stored) {
       const parsed = JSON.parse(stored);
@@ -32,6 +44,32 @@ export default function ComparePage() {
     topSpeed: getStatLimit('topSpeed')
   };
 
+  // 🚨 Scenario 1: User is not Logged In (Show Login Prompt Screen)
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-[#02040a] flex items-center justify-center text-white px-4">
+        <div className="text-center max-w-md relative z-10 bg-slate-900/30 p-12 rounded-[3rem] border border-white/5 backdrop-blur-xl">
+          <div className="bg-blue-500/10 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-blue-500/20">
+            <Lock size={36} className="text-blue-500 animate-pulse" />
+          </div>
+          <h2 className="text-3xl font-black uppercase tracking-tighter italic mb-4">
+            Security <span className="text-blue-500">Shield</span>
+          </h2>
+          <p className="text-slate-400 text-sm mb-10 leading-relaxed">
+            Please login or sign up to access the comparison dashboard. Your data workspace requires active system authorization.
+          </p>
+          <button 
+            onClick={() => navigate("/login", { state: { from: location.pathname } })} 
+            className="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-full font-black text-[10px] uppercase tracking-[0.3em] transition-all shadow-[0_0_40px_rgba(37,99,235,0.2)] hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Authenticate Portal
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 🚗 Scenario 2: No cars selected for comparison
   if (!cars.length) return <EmptyMatrix />;
 
   return (
@@ -44,7 +82,13 @@ export default function ComparePage() {
             <span className="text-blue-500 text-[10px] font-black uppercase tracking-[0.5em] block mb-2">Analysis Engine</span>
             <h1 className="text-9xl font-black italic uppercase tracking-tighter">The Matrix</h1>
           </div>
-          <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="px-12 py-6 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all">
+          <button 
+            onClick={() => { 
+              localStorage.removeItem("compareCars"); // Clears only compare workspace rather than full session storage
+              window.location.reload(); 
+            }} 
+            className="px-12 py-6 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all"
+          >
              Wipe Workspace
           </button>
         </div>

@@ -1,9 +1,10 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { LogOut, User, LayoutDashboard, Cpu, ShieldCheck } from "lucide-react"; // Icons for a premium feel
+import { NavLink, useNavigate, useLocation } from "react-router-dom"; // Added useLocation for passing state
+import { LogOut, User, LayoutDashboard, Cpu, ShieldCheck } from "lucide-react"; 
 import { isLoggedIn, isAdmin, logout } from "../../utils/auth";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Use your robust utility functions
   const authenticated = isLoggedIn();
@@ -12,6 +13,15 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout(); // Uses your util to clear storage and redirect
+  };
+
+  // 🛡️ Helper function to intercept unauthorized clicks on premium links
+  const handleProtectedNavigation = (e, path) => {
+    if (!authenticated) {
+      e.preventDefault(); // Stop default route change
+      // Send user to login, but remember where they wanted to go!
+      navigate("/login", { state: { from: path } });
+    }
   };
 
   return (
@@ -31,9 +41,20 @@ export default function Navbar() {
         {/* NAV LINKS */}
         <div className="flex gap-8 text-[13px] font-bold items-center">
           <NavItem to="/">Home</NavItem>
-          <NavItem to="/compare">Compare</NavItem>
           
-          <NavItem to="/e-challan">
+          {/* Protected Compare Link */}
+          <NavItem 
+            to="/compare" 
+            onClick={(e) => handleProtectedNavigation(e, "/compare")}
+          >
+            Compare
+          </NavItem>
+          
+          {/* Protected E-Challan Link */}
+          <NavItem 
+            to="/e-challan"
+            onClick={(e) => handleProtectedNavigation(e, "/e-challan")}
+          >
             <span className="flex items-center gap-1.5">
               E-Challan
               <span className="flex items-center gap-0.5 text-[9px] bg-sky-500/10 text-sky-400 px-1.5 py-0.5 rounded-md border border-sky-500/20 uppercase tracking-tighter font-black">
@@ -74,6 +95,7 @@ export default function Navbar() {
             ) : (
               <NavLink 
                 to="/login" 
+                state={{ from: location.pathname }} // Save current page state when explicitly clicking Login
                 className="flex items-center gap-2 bg-sky-600 text-white px-6 py-2.5 rounded-xl hover:bg-sky-500 hover:shadow-[0_0_20px_rgba(14,165,233,0.3)] transition-all font-bold"
               >
                 <User size={16} />
@@ -90,10 +112,11 @@ export default function Navbar() {
 /**
  * Custom NavItem Component for consistent styling
  */
-function NavItem({ to, children, className = "" }) {
+function NavItem({ to, children, className = "", onClick }) {
   return (
     <NavLink
       to={to}
+      onClick={onClick} // Pass down the dynamic click handler
       className={({ isActive }) =>
         `relative pb-1 transition-all group flex items-center ${
           isActive ? "text-sky-400 active-nav" : "text-gray-400 hover:text-white"
