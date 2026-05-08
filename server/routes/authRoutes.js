@@ -1,93 +1,104 @@
 import express from "express";
-import User from "../models/User.js";
+import bcrypt from "bcryptjs"; // Safe hashing for production
 import jwt from "jsonwebtoken";
+import User from "../models/User.js"; // Make sure your User model path is correct
 
 const router = express.Router();
 
-/**
- * @desc    Generate JWT Token
- * @helper  Internal function to keep code clean
- */
-const generateToken = (id, isAdmin) => {
-  return jwt.sign({ id, isAdmin }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+// Helper function to generate JWT Token
+const generateToken = (id) => {
+  return jwt.sign(
+    { id }, 
+    process.env.JWT_SECRET || "drivana_secret_key_123", 
+    { expiresIn: "30d" }
+  );
 };
 
-/* =========================
-    📝 USER SIGNUP (Default: isAdmin = false)
-========================= */
+/* ==========================================
+   👤 ROUTE: REGISTER / SIGNUP USER
+   ========================================== */
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ message: "User already exists" });
+    // 1. Validation check
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Please fill all fields" });
+    }
 
-    // This creates a standard user. The 'isAdmin' defaults to 'false' in your Schema.
-    const user = await User.create({ name, email, password });
+    // 2. Check if user already exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already registered" });
+    }
 
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      token: generateToken(user._id, user.isAdmin),
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    // 3. Hash the password manually before saving
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-/* =========================
-    🔑 ADMIN REGISTRATION (Secret/Manual)
-========================= */
-router.post("/register-admin", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ message: "Admin already exists" });
-
-    const admin = await User.create({
+    // 4. Create User in MongoDB
+    const user = await User.create({
       name,
       email,
-      password,
-      isAdmin: true, // Explicitly set to true
+      password: hashedPassword, // Store the safely hashed password
     });
 
-    res.status(201).json({
-      message: "Admin account created successfully",
-      isAdmin: admin.isAdmin,
+    if (user) {
+      res.status(201).json({
+        token: generateToken(user._id),
+        isAdmin: user.isAdmin,
+        name: user.name,
+        message: "Registration successful!",
+      });
+    } else {
+      res.status(400).json({ message: "Invalid user data setup" });
+    }
+  } catch (error) {
+    console.error("Signup Route Error:", error.message);
+    res.status(500).json({ 
+      message: "Server encountered registration crash", 
+      error: error.message 
     });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
   }
 });
 
-/* =========================
-    🔓 LOGIN (Smooth User/Admin Handshake)
-========================= */
+/* ==========================================
+   🔑 ROUTE: LOGIN USER
+   ========================================== */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-
-    // matchPassword comes from your User.js model methods
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin, // <--- Frontend uses this for Navbar & Redirects
-        token: generateToken(user._id, user.isAdmin),
-      });
-    } else {
-      res.status(401).json({ message: "Invalid email or password" });
+    // 1. Validation check
+    if (!email || !password) {
+      return res.status(400).json({ message: "Please enter all fields" });
     }
-  } catch (err) {
-    res.status(500).json({ message: "Internal Server Error" });
+
+    // 2. Find User by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // 3. Match passwords using bcryptjs
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // 4. Return Session Payload
+    res.json({
+      token: generateToken(user._id),
+      isAdmin: user.isAdmin,
+      name: user.name,
+      message: `Welcome back, ${user.name}!`,
+    });
+  } catch (error) {
+    console.error("Login Route Error:", error.message);
+    res.status(500).json({ 
+      message: "Server encountered login crash", 
+      error: error.message 
+    });
   }
 });
 
